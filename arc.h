@@ -5,6 +5,8 @@
 #include <locale.h>
 #include <cstring>
 #include <filesystem>
+#include <stdio.h>
+#include <stdlib.h>
 
 
 #ifdef __linux__

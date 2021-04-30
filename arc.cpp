@@ -47,10 +47,17 @@ int info(const char *path) {
     string non;
     const int NUM = 256;
     char buff[NUM] = {0};
+    char path1[PATH_SIZE] = {0};
+    strcpy(path1, path_c);
+
+    string path2 = dirname (path1);
     fstream infofile;
-    infofile.open("infofile.txt", ios_base::out);
+    string infoname = path2 + "/infofile.txt";
+    //infofile.open("infoname", ios_base::out);
+    infofile.open(infoname, ios_base::out);
+    cout << "infoname = " << infoname << endl;
     infofile.clear();
-    
+    cout << "path =" << path << endl;
     if ((dir=opendir(path)) !=NULL)
     {
         while ( (file = readdir(dir)) !=NULL )
@@ -117,25 +124,32 @@ return(0);
 
 //архивация
 int inarch(const char *path_c){
+    string path1;
     char foldPath[PATH_SIZE] = {0};
     strcpy(foldPath, path_c);
+    //path1 = path;
 
+   // const int SIZE = 32;
+    //char drive[SIZE] = {0};
+    //char dir[SIZE] = {0};
 
+    //_splitpath(foldPath, drive, dir, 0, 0);
+    path1 = dirname (foldPath);   
 
-    real_bin_file = path+"/binary.arch";
+    real_bin_file = path1 +"/binary.arch";
 
     cout << "real_bin_file " << real_bin_file << endl;
     char byte[1];
     FILE *f;
     FILE *main = fopen((real_bin_file).c_str(), "wb");
-    FILE *infofile = fopen ((path+"/infofile.txt").c_str(), "rb");
+    FILE *infofile = fopen ((path1 +"/infofile.txt").c_str(), "rb");
 
-    cout << "path+/infofile.txt  " << (path+"/infofile.txt").c_str() << endl;
+    cout << "path1/infofile.txt  " << (path1 +"/infofile.txt").c_str() << endl;
 
-    while(!feof(infofile))
-        if (fread(byte,1,1,infofile)==1) fwrite(byte,1,1,main);
+   // while(!feof(infofile))
+   //     if (fread(byte,1,1,infofile)==1) fwrite(byte,1,1,main);
     fclose;
-    remove ((path+"/infofile.txt").c_str());
+    //remove ((path1 +"/infofile.txt").c_str());
 
     //for (vector<string>::iteration itr);
 
