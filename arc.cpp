@@ -19,13 +19,21 @@ vector <string> files;
 int main() {
 
     setlocale( LC_ALL, "rus");
+    int i;
     cout << "Write path\n";
     cin >> path; 
 
     strcpy(path_c, path.c_str());
-    
+    cout << "1 - inarch , 2- outarch"<< endl;
+    cin >> i;
+    if (i==1) {
     info(path_c);
     inarch(path_c);
+    } else if (i==2)
+    { } else 
+        cout << "Error! Invaled value" << endl;
+        
+    
 
     return(0);
 }
@@ -74,6 +82,7 @@ int info(const char *path) {
                 strcat(fullPath, fileName_c);
 
                 size = getFileSize(fullPath);
+                files.push_back(fullPath);
                 cout << "size = " << size << endl;
 
                 strsize = to_string(size);
@@ -174,7 +183,9 @@ int inarch(const char *path_c){
 
 }
 
+int outarch(const char *path_c){
 
+}
 
 int64_t getFileSize(const char *fileName)
 {
