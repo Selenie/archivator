@@ -1,8 +1,4 @@
-
-
 #include "arc.h"
-#include <libgen.h>
-#include <vector>
 
 
 using namespace std;
@@ -11,8 +7,7 @@ using namespace std;
 const int PATH_SIZE = 255;
 char path_c[PATH_SIZE];
 string path;
-// string path = "test1";
-string real_bin_file;
+string bin_file;
 vector <string> files;
 
 
@@ -21,22 +16,21 @@ int main() {
     setlocale( LC_ALL, "rus");
     int i;
 
-    cout << "1 - inarch , 2- outarch"<< endl;
+    cout << "1 - inarch , 2- outarch"<< endl; // 1 -архивация, 2 - распаковка
     cin >> i;
     if (i==1) {
+        
         cout << "Write path\n";
         cin >> path; 
-        strcpy(path_c, path.c_str());
-        info(path_c);
-        inarch(path_c);
+        strcpy(path_c, path.c_str()); 
+        info(path_c); //получение информации об архивируемых файлах
+        inarch(path_c); //архивация
 
     } else if (i==2)
-        outarch(); 
+        outarch(); //распаковка
     else 
         cout << "Error! Invaled value" << endl;
         
-    
-
     return(0);
 }
 
@@ -60,37 +54,37 @@ int info(const char *path) {
     char path1[PATH_SIZE] = {0};
     strcpy(path1, path_c);
 
-    string path2 = dirname (path1);
-    fstream infofile;
-    string infoname = path2 + "/infofile.txt";
-    infofile.open(infoname, ios_base::out);
+    string path2 = dirname (path1); //получение пути папки в которой создержатся архивируемые файлы
+    fstream infofile; 
+    string infoname = path2 + "/infofile.txt"; // создаем файл, в котором будет информация об архивируемых файлах (размер и название)
+    infofile.open(infoname, ios_base::out); 
     infofile.clear();
 
     dir=opendir(path);
-    if (dir!= NULL)
+    if (dir!= NULL) //если директория не пуста
 
-    //if ((dir=opendir(path)) !=NULL)
     {
         while ( (file = readdir(dir)) !=NULL )
         {   
             if (!file->d_name || file->d_name[0] != '.')
             {
-                fileName = file->d_name;
+                fileName = file->d_name; //получаем имя файла
                 cout << "имя файла " << fileName << endl;
                 strcpy(fileName_c, fileName.c_str());
                 char fullPath[64] = {0};
                 strcpy(fullPath, path_c);
                 strcat(fullPath, "/");
-                strcat(fullPath, fileName_c);
+                strcat(fullPath, fileName_c);//полный путь до файла 
 
-                size = getFileSize(fullPath);
-                files.push_back(fullPath);
+                size = getFileSize(fullPath); //размер файла
+                files.push_back(fullPath); //добавляем путь до файла в вектор files
                 cout << "size = " << size << endl;
 
                 strsize = to_string(size);
-                sizeString += fileName.size() + strsize.size()+4;
+                sizeString += fileName.size() + strsize.size()+4; //считаем размер строки с данными о файле (имя и размер (+4 - размер разделителей))
 
-                infofile << strsize;
+                //записываем данные в инфофайл
+                infofile << strsize; 
                 infofile << "||";
                 infofile << fileName;
                 infofile << "||";
@@ -98,52 +92,35 @@ int info(const char *path) {
             }
 
        }
-        sizeString += 2; /////////////!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        //infofile << "end||";
+        sizeString += 2; //добавляем размер одного разделителя
         string sizeStr;
         sizeStr = to_string(sizeString);
-        //int infosize;
-        //char *m_size = new char[how(infosize)];
+
         int lenght;
-        lenght = sizeStr.size();
+        lenght = sizeStr.size();//размер переменной, содержащей размер строки с информацией о файлах
         cout << "string size = " << lenght << endl;
-        //lenght += 2;   /////!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  
+        // проверка размера переменной
         string addzero;
-        if (lenght<5)  addzero = (string(5-lenght,'0').c_str());
+        if (lenght<5)  addzero = (string(5-lenght,'0').c_str()); //считаем сколько необходимо дописать нулей, чтобы размер переменной был равен 5
         cout << "howlenght = " << lenght <<endl;
         sizeStr=addzero +sizeStr; 
 
-        
         infofile.close();
         infofile.open(infoname);
 
-        infofile.getline(buff, NUM);
+        infofile.getline(buff, NUM);// копируем данные из инфофайла
         cout << "buff =" << buff << endl;
 
         infofile.clear();
         infofile.close();
         infofile.open(infoname);
 
-        infofile << sizeStr;
+        infofile << sizeStr; //добавляем переменную с размером информации о файлах 
         infofile << "||";
         infofile << buff; 
 
-
-        cout << "all = "<< sizeString<< endl;
-
-
-        // size = infofile.tellg();
-        // cout << "size = "<< size <<endl;
-
-   
-
-
-
-        
-
-
         infofile.close();
-        
         closedir(dir);
     } else 
     {
@@ -153,16 +130,6 @@ int info(const char *path) {
 return 0;
 }
 
-// int how(double w) {
-//     int i=0;
-//     while (w>10)
-//     {
-//         i++;
-//         w/=10;
-//     }
-//     return i+1;
-    
-// }
 
 //архивация
 int inarch(const char *path_c){
@@ -170,42 +137,27 @@ int inarch(const char *path_c){
     string archname;
     cin >> archname;
 
-    //string path1;
-    //char foldPath[PATH_SIZE] = {0};
-    //strcpy(foldPath, path_c);
-    //path1 = path;
-
-   // const int SIZE = 32;
-    //char drive[SIZE] = {0};
-    //char dir[SIZE] = {0};
-
-    //_splitpath(foldPath, drive, dir, 0, 0);
     char path1[PATH_SIZE] = {0};
     strcpy(path1, path_c);
-
     string path2 = dirname (path1);
     string infoname = path2 + "/infofile.txt";
 
-   // path1 = dirname (foldPath);   
-    
-    // char archname = Path.GetDirectoryName(filename);
+    bin_file = path2 + "/" +  archname + ".arch"; //файл - архив
 
-//    char archname = Path::GetFileName(path_c);
-
-    real_bin_file = path2 + "/" +  archname + ".arch";
-
-    cout << "real_bin_file " << real_bin_file << endl;
+    cout << "bin_file " << bin_file << endl;
     char byte[1];
     FILE *f;
-    FILE *main = fopen((real_bin_file).c_str(), "wb");
-    FILE *infofile = fopen ((infoname).c_str(), "rb");
+    FILE *main = fopen((bin_file).c_str(), "wb"); 
+    FILE *infofile = fopen ((infoname).c_str(), "rb"); // открываем файл с информацией
 
     cout << "path1/infofile.txt  " << (infoname).c_str() << endl;
+
+    //раписываем побайтно информацию в архив
 
      while(!feof(infofile))
        if (fread(byte,1,1,infofile)==1) fwrite(byte,1,1,main);
     fclose(infofile);
-   // remove ((infoname).c_str());
+    remove ((infoname).c_str()); //удаляем файл с информацией
 
 
     // запись в архив архивируемых файлов побайтно 
@@ -218,59 +170,48 @@ int inarch(const char *path_c){
         {
             if(fread(byte,1,1,f)==1) fwrite(byte,1,1,main);
         }
-        cout<<*itr<<" добавлен в архив '"<<real_bin_file<<"'."<<endl;
+        cout<<*itr<<" добавлен в архив '"<<bin_file<<"'."<<endl;
         fclose(f);
     }
     fclose(main);
-
 
     return 0;
 
 }
 
 //распаковка
+
 int outarch(){
-    char archpath[PATH_SIZE] ={0};
-    // char *archpath = mass;
+    char archpath[PATH_SIZE] ={0}; //путь до архива
     cout << "Write archive path " <<endl;
     cin >> archpath;
     cout <<"archpath  "<< archpath << endl;
-    //string fullpath = archpath;
-    // const int NUM = 256;
-    // char buff[NUM] = {0};
-    //char path1[PATH_SIZE] = {0};
-    //strcpy(path1, path_c);
-    //string path2 = dirname (path1);
-    real_bin_file = archpath;
+    bin_file = archpath;
 
-    //char *chararchpath = archpath[0];
     string path = dirname (archpath);
     cout << "path = " << path << endl;
 
-    
-   // real_bin_file = path2 + "/" +  archname + ".arch";
-   // real_bin_file = path2 +"/binary.arch";
-    FILE *arch = fopen(real_bin_file.c_str(), "rb"); 
-    char infosize[5] = {0};
-    fread (infosize,1,5,arch);
-    // int a = fread (infosize,1,5,arch);
-    // cout<< "a = " << a <<endl;
-    //arch.getline(buff, NUM);
-    int infsz = atoi(infosize);
+
+    FILE *arch = fopen(bin_file.c_str(), "rb"); // отурываем архив в режиме чтения
+    char infosize[5] = {0}; 
+    fread (infosize,1,5,arch); // считываем переменную с размером информации
+
+    int infsz = atoi(infosize); // преобразуем буфер в число
     cout << "size = " << infsz << endl;
 
     char *info = new char [infsz];
     fread(info, 1, infsz ,arch);
+
+    // считываем информацию о файлах
 
     vector<string> tokens;
     char *tok = strtok(info,"||");
     int toks = 0;
     while(tok)
     {
-        // if(strlen(tok)==0) break;
         if(tok == NULL) break;
-        tokens.push_back(tok);
-        tok=strtok(NULL,"||");  ///
+        tokens.push_back(tok); //добавляем информацию в вектор
+        tok=strtok(NULL,"||");  
         toks++;
     }
      if(toks%2==1) toks--;  // удаляем мусор
@@ -280,49 +221,43 @@ int outarch(){
     char byte[1];   // единичный буфер для считывания одного байта
   
 
-    // Процесс распаковки всех файлов( по правилам полученным из блока с информацией ) :
+    // Распаковка файлов
+
     for(int i=0;i<files;i++)
     {
         const char* size = tokens[i*2].c_str();
         const char* name = tokens[i*2+1].c_str();
-        //char full_path[255];
-        //strcpy(full_path, path.c_str());
-        //strcat(full_path,name);
+    
         int _sz = atoi(size);
-        
-
 
         char fullpath[PATH_SIZE] = {0};
         strcpy(fullpath, path.c_str());
         strcat(fullpath, "/");
+        strcat(fullpath, name); // полный путь до распаковываемого файла
 
-        strcat(fullpath, name);
+        cout<<name<<"' извлечен в "<< fullpath << endl;
 
-        cout<<"--  '"<<name<<"' извлечен в "<< fullpath << endl;
+        //открывем файл по полному пути и в него записываем побайто из архива 
 
         FILE *curr = fopen(fullpath,"wb");
         for(int r=1;r<=_sz;r++)
         {
             if(fread(byte,1,1,arch)==1) 
-              fwrite(byte,1,1,curr);
+                fwrite(byte,1,1,curr);
         }
         fclose(curr);
-
-        // delete size;
-        // delete name;
     }
     fclose(arch);
 
-
     return 0;
-
 }
+
+//функция получения размера файла в байтах
 
 int64_t getFileSize(const char *fileName)
 {
     int64_t file_size = 0;
     FILE *fd = fopen(fileName, "rb");
-    //  FILE *fd = fopen("test1/text1.txt", "rb");
 
     if (fd == NULL)
       file_size = -1;

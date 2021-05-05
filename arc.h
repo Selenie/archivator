@@ -8,6 +8,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <libgen.h>
+#include <vector>
 
 #ifdef __linux__
 #include <sys/types.h>
