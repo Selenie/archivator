@@ -8,7 +8,7 @@
 using namespace std;
 
 
-const int PATH_SIZE = 64;
+const int PATH_SIZE = 255;
 char path_c[PATH_SIZE];
 string path;
 // string path = "test1";
@@ -20,17 +20,19 @@ int main() {
 
     setlocale( LC_ALL, "rus");
     int i;
-    cout << "Write path\n";
-    cin >> path; 
 
-    strcpy(path_c, path.c_str());
     cout << "1 - inarch , 2- outarch"<< endl;
     cin >> i;
     if (i==1) {
-    info(path_c);
-    inarch(path_c);
+        cout << "Write path\n";
+        cin >> path; 
+        strcpy(path_c, path.c_str());
+        info(path_c);
+        inarch(path_c);
+
     } else if (i==2)
-    { } else 
+        outarch(); 
+    else 
         cout << "Error! Invaled value" << endl;
         
     
@@ -86,19 +88,31 @@ int info(const char *path) {
                 cout << "size = " << size << endl;
 
                 strsize = to_string(size);
-                sizeString =  sizeString + fileName.size() + strsize.size();
+                sizeString += fileName.size() + strsize.size()+4;
 
-                infofile << size;
+                infofile << strsize;
                 infofile << "||";
-                infofile << fileName ;
+                infofile << fileName;
                 infofile << "||";
                 
             }
 
        }
-        // infofile << "end||";
+        sizeString += 2; /////////////!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        //infofile << "end||";
         string sizeStr;
         sizeStr = to_string(sizeString);
+        //int infosize;
+        //char *m_size = new char[how(infosize)];
+        int lenght;
+        lenght = sizeStr.size();
+        cout << "string size = " << lenght << endl;
+        //lenght += 2;   /////!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        string addzero;
+        if (lenght<5)  addzero = (string(5-lenght,'0').c_str());
+        cout << "howlenght = " << lenght <<endl;
+        sizeStr=addzero +sizeStr; 
+
         
         infofile.close();
         infofile.open(infoname);
@@ -116,6 +130,18 @@ int info(const char *path) {
 
 
         cout << "all = "<< sizeString<< endl;
+
+
+        // size = infofile.tellg();
+        // cout << "size = "<< size <<endl;
+
+   
+
+
+
+        
+
+
         infofile.close();
         
         closedir(dir);
@@ -124,11 +150,26 @@ int info(const char *path) {
         cout << "Error\n";
         return(0);
     }
-return(0);
+return 0;
 }
+
+// int how(double w) {
+//     int i=0;
+//     while (w>10)
+//     {
+//         i++;
+//         w/=10;
+//     }
+//     return i+1;
+    
+// }
 
 //архивация
 int inarch(const char *path_c){
+    cout << "Write archive name " << endl;
+    string archname;
+    cin >> archname;
+
     //string path1;
     //char foldPath[PATH_SIZE] = {0};
     //strcpy(foldPath, path_c);
@@ -146,8 +187,12 @@ int inarch(const char *path_c){
     string infoname = path2 + "/infofile.txt";
 
    // path1 = dirname (foldPath);   
+    
+    // char archname = Path.GetDirectoryName(filename);
 
-    real_bin_file = path2 +"/binary.arch";
+//    char archname = Path::GetFileName(path_c);
+
+    real_bin_file = path2 + "/" +  archname + ".arch";
 
     cout << "real_bin_file " << real_bin_file << endl;
     char byte[1];
@@ -160,10 +205,10 @@ int inarch(const char *path_c){
      while(!feof(infofile))
        if (fread(byte,1,1,infofile)==1) fwrite(byte,1,1,main);
     fclose(infofile);
-    remove ((infoname).c_str());
+   // remove ((infoname).c_str());
 
 
-    // последовательная запись в архив архивируемых файлов побайтно 
+    // запись в архив архивируемых файлов побайтно 
 
     for(vector<string>::iterator itr=files.begin();itr!=files.end();++itr)
     {
@@ -179,11 +224,97 @@ int inarch(const char *path_c){
     fclose(main);
 
 
-    return(0);
+    return 0;
 
 }
 
-int outarch(const char *path_c){
+//распаковка
+int outarch(){
+    char archpath[PATH_SIZE] ={0};
+    // char *archpath = mass;
+    cout << "Write archive path " <<endl;
+    cin >> archpath;
+    cout <<"archpath  "<< archpath << endl;
+    //string fullpath = archpath;
+    // const int NUM = 256;
+    // char buff[NUM] = {0};
+    //char path1[PATH_SIZE] = {0};
+    //strcpy(path1, path_c);
+    //string path2 = dirname (path1);
+    real_bin_file = archpath;
+
+    //char *chararchpath = archpath[0];
+    string path = dirname (archpath);
+    cout << "path = " << path << endl;
+
+    
+   // real_bin_file = path2 + "/" +  archname + ".arch";
+   // real_bin_file = path2 +"/binary.arch";
+    FILE *arch = fopen(real_bin_file.c_str(), "rb"); 
+    char infosize[5] = {0};
+    fread (infosize,1,5,arch);
+    // int a = fread (infosize,1,5,arch);
+    // cout<< "a = " << a <<endl;
+    //arch.getline(buff, NUM);
+    int infsz = atoi(infosize);
+    cout << "size = " << infsz << endl;
+
+    char *info = new char [infsz];
+    fread(info, 1, infsz ,arch);
+
+    vector<string> tokens;
+    char *tok = strtok(info,"||");
+    int toks = 0;
+    while(tok)
+    {
+        // if(strlen(tok)==0) break;
+        if(tok == NULL) break;
+        tokens.push_back(tok);
+        tok=strtok(NULL,"||");  ///
+        toks++;
+    }
+     if(toks%2==1) toks--;  // удаляем мусор
+    int files=toks/2;  // количество обнаруженных файлов в архиве
+    cout << "files = " << files << endl;
+
+    char byte[1];   // единичный буфер для считывания одного байта
+  
+
+    // Процесс распаковки всех файлов( по правилам полученным из блока с информацией ) :
+    for(int i=0;i<files;i++)
+    {
+        const char* size = tokens[i*2].c_str();
+        const char* name = tokens[i*2+1].c_str();
+        //char full_path[255];
+        //strcpy(full_path, path.c_str());
+        //strcat(full_path,name);
+        int _sz = atoi(size);
+        
+
+
+        char fullpath[PATH_SIZE] = {0};
+        strcpy(fullpath, path.c_str());
+        strcat(fullpath, "/");
+
+        strcat(fullpath, name);
+
+        cout<<"--  '"<<name<<"' извлечен в "<< fullpath << endl;
+
+        FILE *curr = fopen(fullpath,"wb");
+        for(int r=1;r<=_sz;r++)
+        {
+            if(fread(byte,1,1,arch)==1) 
+              fwrite(byte,1,1,curr);
+        }
+        fclose(curr);
+
+        // delete size;
+        // delete name;
+    }
+    fclose(arch);
+
+
+    return 0;
 
 }
 

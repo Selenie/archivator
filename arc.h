@@ -17,7 +17,8 @@
 #endif
 
 
-
+int how(double w);
 int info(const char *path);
 int inarch(const char *path_c);
+int outarch();
 int64_t getFileSize(const char *fileName);
